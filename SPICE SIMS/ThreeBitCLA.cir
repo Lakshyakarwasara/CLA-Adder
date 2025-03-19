@@ -1,0 +1,148 @@
+.include TSMC_180nm.txt
+.param SUPPLY=1.8
+.param LAMBDA=0.09u
+.param width_N={20*LAMBDA}
+.param width_P={40*LAMBDA}
+.global gnd vdd
+
+Vdd	vdd	gnd	'SUPPLY'
+vd1a a1  0 pulse 1.8 0 0ns 100ps 100ps 10ns 60ns
+vd1b b1  0 pulse 0 1.8 0ns 100ps 100ps 20ns 60ns
+vd2a a2  0 pulse 1.8 0 0ns 100ps 100ps 10ns 60ns
+vd2b b2  0 pulse 0 1.8 0ns 100ps 100ps 20ns 60ns
+vd3a a3  0 pulse 1.8 0 0ns 100ps 100ps 10ns 60ns
+vd3b b3  0 pulse 0 1.8 0ns 100ps 100ps 20ns 60ns
+vd3 ci1 0 pulse 0 0 0ns 100ps 100ps 20ns 60ns
+
+
+.subckt xor_subckt a b y vdd gnd
+//Top inverter
+M1      a_bar       a       vdd     vdd  CMOSP   W={width_P}   L={2*LAMBDA}
++ AS={5*width_P*LAMBDA} PS={10*LAMBDA+2*width_P} AD={5*width_P*LAMBDA} PD={10*LAMBDA+2*width_P}
+M2      a_bar       a       gnd     gnd  CMOSN   W={width_N}   L={2*LAMBDA}
++ AS={5*width_N*LAMBDA} PS={10*LAMBDA+2*width_N} AD={5*width_N*LAMBDA} PD={10*LAMBDA+2*width_N}
+
+//Bottom Inverter
+M3      b_bar       b       vdd     vdd  CMOSP   W={width_P}   L={2*LAMBDA}
++ AS={5*width_P*LAMBDA} PS={10*LAMBDA+2*width_P} AD={5*width_P*LAMBDA} PD={10*LAMBDA+2*width_P}
+M4      b_bar       b       gnd     gnd  CMOSN   W={width_N}   L={2*LAMBDA}
++ AS={5*width_N*LAMBDA} PS={10*LAMBDA+2*width_N} AD={5*width_N*LAMBDA} PD={10*LAMBDA+2*width_N}
+
+//Layer 2
+M5      J1   a_bar    vdd     vdd  CMOSP   W={width_P}   L={2*LAMBDA}
++ AS={5*width_P*LAMBDA} PS={10*LAMBDA+2*width_P} AD={5*width_P*LAMBDA} PD={10*LAMBDA+2*width_P}
+M6      y       b       J1     J1  CMOSP   W={width_P}   L={2*LAMBDA}
++ AS={5*width_P*LAMBDA} PS={10*LAMBDA+2*width_P} AD={5*width_P*LAMBDA} PD={10*LAMBDA+2*width_P}
+M7      y       a       J2     J2  CMOSN   W={width_N}   L={2*LAMBDA}
++ AS={5*width_N*LAMBDA} PS={10*LAMBDA+2*width_N} AD={5*width_N*LAMBDA} PD={10*LAMBDA+2*width_N}
+M8      J2      b     gnd     gnd  CMOSN   W={width_N}   L={2*LAMBDA}
++ AS={5*width_N*LAMBDA} PS={10*LAMBDA+2*width_N} AD={5*width_N*LAMBDA} PD={10*LAMBDA+2*width_N}
+
+//Layer 3
+M9      J11       b_bar    vdd     vdd  CMOSP   W={width_P}   L={2*LAMBDA}
++ AS={5*width_P*LAMBDA} PS={10*LAMBDA+2*width_P} AD={5*width_P*LAMBDA} PD={10*LAMBDA+2*width_P}
+M10      y       a         J11     J11  CMOSP   W={width_P}   L={2*LAMBDA}
++ AS={5*width_P*LAMBDA} PS={10*LAMBDA+2*width_P} AD={5*width_P*LAMBDA} PD={10*LAMBDA+2*width_P}
+M11      y     a_bar       J22     J22  CMOSN   W={width_N}   L={2*LAMBDA}
++ AS={5*width_N*LAMBDA} PS={10*LAMBDA+2*width_N} AD={5*width_N*LAMBDA} PD={10*LAMBDA+2*width_N}
+M12      J22     b_bar     gnd     gnd  CMOSN   W={width_N}   L={2*LAMBDA}
++ AS={5*width_N*LAMBDA} PS={10*LAMBDA+2*width_N} AD={5*width_N*LAMBDA} PD={10*LAMBDA+2*width_N}
+.ends xor_subckt
+
+
+.subckt and_subckt a b y vdd gnd
+* Layer-1
+M1      nand       b       vdd     vdd  CMOSP   W={width_P}   L={2*LAMBDA}
++ AS={5*width_P*LAMBDA} PS={10*LAMBDA+2*width_P} AD={5*width_P*LAMBDA} PD={10*LAMBDA+2*width_P}
+M2      nand       a       vdd     vdd  CMOSP   W={width_P}   L={2*LAMBDA}
++ AS={5*width_P*LAMBDA} PS={10*LAMBDA+2*width_P} AD={5*width_P*LAMBDA} PD={10*LAMBDA+2*width_P}
+M3      nand       a       J     J  CMOSN   W={width_N}   L={2*LAMBDA}
++ AS={5*width_N*LAMBDA} PS={10*LAMBDA+2*width_N} AD={5*width_N*LAMBDA} PD={10*LAMBDA+2*width_N}
+M4      J         b      gnd gnd   CMOSN   W={width_N}   L={2*LAMBDA}
++ AS={5*width_N*LAMBDA} PS={10*LAMBDA+2*width_N} AD={5*width_N*LAMBDA} PD={10*LAMBDA+2*width_N}
+M5      y       nand       vdd     vdd  CMOSP   W={width_P}   L={2*LAMBDA}
++ AS={5*width_P*LAMBDA} PS={10*LAMBDA+2*width_P} AD={5*width_P*LAMBDA} PD={10*LAMBDA+2*width_P}
+M6      y       nand       gnd     gnd  CMOSN   W={width_N}   L={2*LAMBDA}
++ AS={5*width_N*LAMBDA} PS={10*LAMBDA+2*width_N} AD={5*width_N*LAMBDA} PD={10*LAMBDA+2*width_N}
+.ends and_subckt
+
+.subckt or_subckt a b y vdd gnd
+* Layer-1
+M1      J1       a       vdd     vdd  CMOSP   W={width_P}   L={2*LAMBDA}
++ AS={5*width_P*LAMBDA} PS={10*LAMBDA+2*width_P} AD={5*width_P*LAMBDA} PD={10*LAMBDA+2*width_P}
+M2      nor      b       J1      J1  CMOSP   W={width_P}   L={2*LAMBDA}
++ AS={5*width_P*LAMBDA} PS={10*LAMBDA+2*width_P} AD={5*width_P*LAMBDA} PD={10*LAMBDA+2*width_P}
+M3      nor       a     gnd   gnd   CMOSN   W={width_N}   L={2*LAMBDA}
++ AS={5*width_N*LAMBDA} PS={10*LAMBDA+2*width_N} AD={5*width_N*LAMBDA} PD={10*LAMBDA+2*width_N}
+M4      nor       b     gnd   gnd   CMOSN   W={width_N}   L={2*LAMBDA}
++ AS={5*width_N*LAMBDA} PS={10*LAMBDA+2*width_N} AD={5*width_N*LAMBDA} PD={10*LAMBDA+2*width_N}
+M5      y       nor       vdd     vdd  CMOSP   W={width_P}   L={2*LAMBDA}
++ AS={5*width_P*LAMBDA} PS={10*LAMBDA+2*width_P} AD={5*width_P*LAMBDA} PD={10*LAMBDA+2*width_P}
+M6      y       nor       gnd     gnd  CMOSN   W={width_N}   L={2*LAMBDA}
++ AS={5*width_N*LAMBDA} PS={10*LAMBDA+2*width_N} AD={5*width_N*LAMBDA} PD={10*LAMBDA+2*width_N}
+.ends or_subckt
+
+//One-Bit
+///////////////////////////////////////////////////////
+//Generate
+x1 a1 b1 P1 vdd gnd xor_subckt
+//Propagate
+x2 a1 b1 G1 vdd gnd and_subckt
+//Left-Half of Carry Out
+x3 P1 ci1 L1 vdd gnd and_subckt
+* //Right-Half of Carry Out
+x4 L1 G1 Cout1 vdd gnd or_subckt
+//Sum
+x5 P1 ci1 Sum1 vdd gnd xor_subckt
+//////////////////////////////////////////////////////
+//Two-Bit
+//Generate
+x6 a2 b2 P2 vdd gnd xor_subckt
+//Propagate
+x7 a2 b2 G2 vdd gnd and_subckt
+//Left-Half of Carry Out
+x8 P2 Cout1 L2 vdd gnd and_subckt
+* //Right-Half of Carry Out
+x9 L2 G2 Cout2 vdd gnd or_subckt
+//Sum
+x10 P2 Cout1 Sum2 vdd gnd xor_subckt
+/////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+//Third-Bit
+//Generate
+x11 a3 b3 P3 vdd gnd xor_subckt
+//Propagate
+x12 a3 b3 G3 vdd gnd and_subckt
+//Left-Half of Carry Out
+x13 P3 Cout2 L3 vdd gnd and_subckt
+* //Right-Half of Carry Out
+x14 L3 G3 Cout3 vdd gnd or_subckt
+//Sum
+x15 P3 Cout2 Sum3 vdd gnd xor_subckt
+/////////////////////////////////////////////////////
+
+
+.tran 1n 60n
+.control
+set hcopypscolor = 1
+set color0=white
+set color1=black
+
+run
+* plot v(a1)
+* plot v(b1)
+* plot v(ci1)
+* plot v(P1)
+* plot v(G1)
+* plot v(Sum1)
+* plot v(Cout1)
+* plot v(a2) v(b2)
+* plot v(P2) v(G2)
+* plot v(Sum2)
+plot v(Cout2)
+plot v(a3) v(b3)
+plot v(P3) v(G3)
+plot v(Sum3)
+plot v(Cout3)
+set curplottitle= "Aravind Narayanan-2019102014"
+.endc
